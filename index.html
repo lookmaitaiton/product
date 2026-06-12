@@ -232,12 +232,19 @@
             }
         });
 
-        // รีเฟรชเมื่อเน็ตกลับมา
+       // รีเฟรชเมื่อเน็ตกลับมา
         window.addEventListener('online', () => {
             location.reload();
         });
 
-        ขั้นตอนที่ 2: ลบโค้ดเดิมใน iframe.txt แล้วเปลี่ยนลิงก์ให้ชี้ไปหาไฟล์จริง
+        // ⭐️ ระบบ PWA เพื่อให้ขึ้นปุ่ม Add to Home Screen (ติดตั้งเป็นแอป)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('https://lookmaitaiton.github.io/transport/sw.js')
+                .then(function() { console.log('✅ Service Worker OK!'); })
+                .catch(function(err) { console.log('❌ Service Worker Error:', err); });
+            });
+        }
     </script>
 </body>
 </html>
