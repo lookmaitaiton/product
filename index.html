@@ -174,9 +174,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             const iframe = document.getElementById('main-iframe');
             
-            // ⭐️ ล็อกเวลาไว้ 2 วินาที (2000 ms) ให้โลโก้ Fade in สวยๆ จนเสร็จก่อน ค่อยเปิดเข้าเว็บ
+            // ⭐️ เมื่อหน้าเว็บด้านในโหลดเสร็จ ให้สั่งปิดหน้าโหลด (Splash screen) ทันที
             iframe.onload = () => {
-                setTimeout(showAppAndButton, 2000); 
+                showAppAndButton(); 
             };
 
             // หน่วงเวลา 8 วินาที: ถ้าระบบช้าหรือล่ม ก็ให้ปิดหน้าโหลดโชว์ปุ่มสลับลิงก์ให้กดเสมอ
