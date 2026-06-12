@@ -163,10 +163,10 @@
             location.reload(); 
         }
 
-        // รับสัญญาณ PING จากหน้าเว็บด้านใน (เช็คความปลอดภัยก่อนสั่งโชว์เว็บ)
+       // รับสัญญาณ PING จากหน้าเว็บด้านใน (เช็คความปลอดภัยก่อนสั่งโชว์เว็บ)
         window.addEventListener('message', (event) => {
-            // อนุญาตให้รับข้อความเฉพาะจากระบบ Google Script เท่านั้นเพื่อความปลอดภัย
-            if (!event.origin.includes('script.google.com')) return;
+            // ปรับเป็น 'script.google' เพื่อให้รองรับทั้ง .com และ .googleusercontent.com ของแท้จาก Google
+            if (!event.origin.includes('script.google')) return;
             
             if (event.data === 'LOOKMAI_APP_READY') {
                 showAppAndButton();
