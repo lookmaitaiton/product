@@ -1,1 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <base target="_top">
+    
+    <title>LOOKMAI TAITON - ข้อมูลสินค้า</title>
+    
+    <!-- ⭐️ แก้ไข: ใช้ลิงก์ตรงพร้อมตัวแก้แคช (?v=2) เพื่อบังคับให้เบราว์เซอร์ดึงไอคอนใหม่มาแสดงผลทันที -->
+    <link rel="shortcut icon" href="https://lookmaitaiton.github.io/transport/logo.png?v=2" type="image/png">
+    <link rel="icon" type="image/png" href="https://lookmaitaiton.github.io/transport/logo.png?v=2">
+    <link rel="apple-touch-icon" href="https://lookmaitaiton.github.io/transport/logo.png?v=2">
+    <!-- ⭐️ อัปเดตโครงสร้าง Manifest ให้ชี้ลิงก์ตรงและใส่ตัวแก้แคชด้วยเพื่อความสมบูรณ์ -->
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTE9PS01BSSIsInNob3J0X25hbWUiOiJMT09LTUFJIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwQjExMjEiLCJ0aGVtZV9jb2xvciI6IiMwQjExMjEiLCJpY29ucyI6W3sic3JjIjoiaHR0cHM6Ly9sb29rbWFpdGFpdG9uLmdpdGh1Yi5pby90cmFuc3BvcnQvaWNvbi5qcGciLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvanBlZyIsInB1cnBvc2UiOiJhbnkifSx7InNyYyI6Imh0dHBzOi8vbG9va21haXRhaXRvbi5naXRodWIuaW8vdHJhbnNwb3J0L2ljb24uanBnIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL2pwZWciLCJwdXJwb3NlIjoibWFza2FibGUifSx7InNyYyI6Imh0dHBzOi8vbG9va21haXRhaXRvbi5naXRodWIuaW8vdHJhbnNwb3J0L2ljb24uanBnIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL2pwZWciLCJwdXJwb3NlIjoiYW55In0seyJzcmMiOiJodHRwczovL2xvb2ttYWl0YWl0b24uZ2l0aHViLmlvL3RyYW5zcG9ydC9pY29uLmpwZyIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9qcGVnIiwicHVycG9zZSI6Im1hc2thYmxlIn1dfQ==">
+    
+    <meta name="theme-color" content="#f8fafc" id="theme-color-meta">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ข้อมูลสินค้า">
 
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f8fafc;
+            transition: background-color 0.3s ease;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* หน้าโหลด (Splash Screen) */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f8fafc; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out, background-color 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #0B1121 !important; }
+            #splash-screen { background-color: #0B1121 !important; }
+            #loading-status { color: #94a3b8 !important; }
+        }
+
+        /* แอนิเมชันสำหรับโลโก้ */
+        .splash-logo {
+            width: 280px; 
+            height: auto;
+            opacity: 0;
+            animation: logoReveal 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border-radius: 24px; 
+            object-fit: contain;
+        }
+
+        @keyframes logoReveal {
+            0% { transform: scale(3.5); opacity: 0; }
+            15% { opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #loading-status {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        /* ⭐️ หลอดโหลดแบบวิ่งวน (Progress Bar) */
+        .progress-container {
+            width: 240px;
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            margin-top: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            position: absolute;
+            height: 100%;
+            width: 40%;
+            background-image: linear-gradient(to right, #2563eb, #60a5fa);
+            border-radius: 10px;
+            animation: loadingSlide 1.5s infinite ease-in-out;
+        }
+        @keyframes loadingSlide {
+            0% { left: -50%; }
+            100% { left: 100%; }
+        }
+        @media (prefers-color-scheme: dark) {
+            .progress-container { background-color: #1e293b; }
+        }
+
+        .fade-out {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* ปุ่มด่วนกู้ชีพมุมขวาล่าง */
+        #emergency-backup-btn {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 9999;
+            background-color: rgba(15, 23, 42, 0.6);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 14px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none; 
+        }
+        #emergency-backup-btn:hover {
+            background-color: rgba(37, 99, 235, 0.9);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+    </style>
+
+    <script>
+        const PRIMARY_URL = "https://script.google.com/macros/s/AKfycbweCoZCRWBmrgu4OQFK3zoV531IXSXbN9LKg_Tsm4iRhanqGh43I0iFBcjY0ZpsrVs_Yg/exec";
+        const BACKUP_URL = "https://script.google.com/macros/s/AKfycbyw_DSmfSlzTHKMv4Z1OPJMtdCPpeDj2ck33k96AJPuf0XB1jMaC6swyeGhGXd_o4c6/exec";
+
+        let splashRemoved = false;
+
+        // ฟังก์ชันสั่งปิดหน้าโหลดและโชว์ปุ่มสลับลิงก์
+        function showAppAndButton() {
+            if (splashRemoved) return;
+            splashRemoved = true;
+            
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.classList.add('fade-out');
+                setTimeout(() => { if (splash.parentNode) splash.remove(); }, 800);
+            }
+            
+            const emergencyBtn = document.getElementById('emergency-backup-btn');
+            if (emergencyBtn) emergencyBtn.style.display = 'block';
+        }
+
+        // ฟังก์ชันกดปุ่มสลับลิงก์สำรอง (กดแล้วทำงานทันที)
+        function switchToBackup() {
+            localStorage.setItem('use_backup_once', 'true');
+            location.reload(); 
+        }
+
+        // รับสัญญาณ PING จากหน้าเว็บด้านใน (ถ้าระบบในเสร็จปุ๊บ สั่งโชว์เว็บเลย)
+        window.addEventListener('message', (event) => {
+            if (event.data === 'LOOKMAI_APP_READY') {
+                showAppAndButton();
+            }
+        });
+
+        // ควบคุมระบบตอนโหลดเว็บ
+        window.addEventListener('DOMContentLoaded', () => {
+            const iframe = document.getElementById('main-iframe');
+            
+            // ⭐️ ล็อกเวลาไว้ 2 วินาที (2000 ms) ให้โลโก้ Fade in สวยๆ จนเสร็จก่อน ค่อยเปิดเข้าเว็บ
+            iframe.onload = () => {
+                setTimeout(showAppAndButton, 2000); 
+            };
+
+            // หน่วงเวลา 8 วินาที: ถ้าระบบช้าหรือล่ม ก็ให้ปิดหน้าโหลดโชว์ปุ่มสลับลิงก์ให้กดเสมอ
+            setTimeout(showAppAndButton, 8000);
+
+            // เช็คว่าผู้ใช้กดสลับมาลิงก์รองไหม
+            if (localStorage.getItem('use_backup_once') === 'true') {
+                iframe.src = BACKUP_URL;
+                localStorage.removeItem('use_backup_once');
+                const statusText = document.getElementById('loading-status');
+                if (statusText) statusText.innerText = "กำลังเข้าสู่ระบบผ่านลิงก์สำรอง...";
+            } else {
+                iframe.src = PRIMARY_URL;
+            }
+        });
+
+        // จัดการสีขอบด้านบนของเบราว์เซอร์ ตามโหมดมืด/สว่าง
+        function updateThemeColor(e) {
+            const isDark = e.matches;
+            const metaTheme = document.getElementById('theme-color-meta');
+            if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0B1121' : '#f8fafc');
+        }
+        if (window.matchMedia) {
+            const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            updateThemeColor(colorSchemeQuery);
+            colorSchemeQuery.addEventListener('change', updateThemeColor);
+        }
+    </script>
+</head>
+<body>
+    
+    <div id="splash-screen">
+        <img src="https://lookmaitaiton.github.io/transport/logo.png" alt="Lookmai Logo" class="splash-logo">
+        <div id="loading-status">กำลังเชื่อมต่อระบบข้อมูสินค้า...</div>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+
+    <button id="emergency-backup-btn" onclick="switchToBackup()">🔄 สลับลิงก์สำรอง</button>
+
+    <iframe id="main-iframe" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" src=""></iframe>
+    
+    <script>
+        // แจ้งเตือนเมื่อเน็ตหลุด
+        window.addEventListener('offline', () => {
+            const statusText = document.getElementById('loading-status');
+            if(statusText) {
+                statusText.innerText = "❌ ขาดการเชื่อมต่ออินเทอร์เน็ต กรุณาลองใหม่...";
+                statusText.style.color = "#ef4444"; 
+            } else {
+                alert("ขาดการเชื่อมต่ออินเทอร์เน็ต");
+            }
+        });
+
+        // รีเฟรชเมื่อเน็ตกลับมา
+        window.addEventListener('online', () => {
+            location.reload();
+        });
+
+        // ⭐️ ระบบ PWA เพื่อให้ขึ้นปุ่ม Add to Home Screen (ติดตั้งเป็นแอป)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'lookmai-cache-v1';
+                    const urlsToCache = [
+                        'https://lookmaitaiton.github.io/transport/logo.png',
+                        'https://lookmaitaiton.github.io/transport/icon.jpg'
+                    ];
+
+                    self.addEventListener('install', (e) => { 
+                        self.skipWaiting(); 
+                        e.waitUntil(
+                            caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('activate', (e) => { 
+                        e.waitUntil(self.clients.claim()); 
+                    });
+                    
+                    self.addEventListener('fetch', (e) => { 
+                        e.respondWith(
+                            caches.match(e.request).then((response) => {
+                                // ถ้ามีข้อมูลในแคช (เช่น โลโก้) ให้ดึงมาโชว์เลย ถ้าไม่มีให้โหลดจากเน็ต
+                                return response || fetch(e.request);
+                            }).catch(() => {
+                                // ดักจับกรณีเน็ตหลุด
+                                console.log("Offline mode triggered");
+                            })
+                        ); 
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+            });
+        }
+    </script>
+</body>
+</html>
