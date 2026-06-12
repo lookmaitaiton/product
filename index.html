@@ -163,8 +163,11 @@
             location.reload(); 
         }
 
-        // รับสัญญาณ PING จากหน้าเว็บด้านใน (ถ้าระบบในเสร็จปุ๊บ สั่งโชว์เว็บเลย)
+        // รับสัญญาณ PING จากหน้าเว็บด้านใน (เช็คความปลอดภัยก่อนสั่งโชว์เว็บ)
         window.addEventListener('message', (event) => {
+            // อนุญาตให้รับข้อความเฉพาะจากระบบ Google Script เท่านั้นเพื่อความปลอดภัย
+            if (!event.origin.includes('script.google.com')) return;
+            
             if (event.data === 'LOOKMAI_APP_READY') {
                 showAppAndButton();
             }
@@ -210,7 +213,7 @@
     
     <div id="splash-screen">
         <img src="https://lookmaitaiton.github.io/transport/logo.png" alt="Lookmai Logo" class="splash-logo">
-        <div id="loading-status">กำลังเชื่อมต่อระบบข้อมูสินค้า...</div>
+        <div id="loading-status">กำลังเชื่อมต่อระบบข้อมูลสินค้า...</div>
         <div class="progress-container">
             <div class="progress-bar"></div>
         </div>
